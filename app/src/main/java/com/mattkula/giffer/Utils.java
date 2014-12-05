@@ -9,6 +9,7 @@ import android.os.Build;
 import android.widget.ImageView;
 
 import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.builder.AnimateGifMode;
 import com.mattkula.giffer.activities.SearchActivity;
 
 /**
@@ -52,6 +53,7 @@ public class Utils {
         Ion.with(context)
                 .load("file://android_asset/" + (lightBackground ? "giphy_logo_white.gif" : "giphy_logo.gif"))
                 .withBitmap()
+                .animateGif(AnimateGifMode.ANIMATE_ONCE)
                 .error(context.getResources().getDrawable(android.R.color.holo_red_dark))
                 .intoImageView(imageView);
     }

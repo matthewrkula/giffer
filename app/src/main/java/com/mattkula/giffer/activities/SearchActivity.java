@@ -3,15 +3,20 @@ package com.mattkula.giffer.activities;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.JsonArray;
@@ -27,7 +32,6 @@ import java.util.ArrayList;
 
 public class SearchActivity extends Activity {
 
-    private Button searchBtn;
     private EditText searchBox;
     private GridView searchGrid;
     private ImageView giphyLogo;
@@ -43,27 +47,25 @@ public class SearchActivity extends Activity {
         clipboardManager = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
 
         searchBox = (EditText)findViewById(R.id.edit_search);
-        searchBtn = (Button)findViewById(R.id.btn_search);
-        searchBtn.setOnClickListener(new View.OnClickListener() {
+        searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onClick(View view) {
-                search(searchBox.getText().toString());
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                if (actionId == EditorInfo.IME_NULL && keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
+                    search(searchBox.getText().toString());
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
+                    return true;
+                }
+                return false;
             }
         });
-
         searchGrid = (GridView)findViewById(R.id.grid_search);
         searchGrid.setAdapter(new GifSearchAdapter());
         searchGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                ImageView imageView = (ImageView)view.findViewById(R.id.image_view);
                 ImageResult result = searchResults.get(i);
-
-                Ion.with(SearchActivity.this)
-                        .load(result.gifURL)
-                        .withBitmap()
-                        .placeholder(getResources().getDrawable(R.drawable.ic_launcher))
-                        .intoImageView(imageView);
+                loadImageIntoView(result.gifURL, view);
             }
         });
         searchGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -109,14 +111,8 @@ public class SearchActivity extends Activity {
             if (view == null) {
                 view = View.inflate(SearchActivity.this, R.layout.grid_item_result, null);
             }
-            ImageView imageView = (ImageView)view.findViewById(R.id.image_view);
             ImageResult image = (ImageResult)getItem(i);
-
-            Ion.with(SearchActivity.this)
-                    .load(image.stillURL)
-                    .withBitmap()
-                    .placeholder(getResources().getDrawable(R.drawable.ic_launcher))
-                    .intoImageView(imageView);
+            loadImageIntoView(image.stillURL, view);
 
             return view;
         }
@@ -135,5 +131,22 @@ public class SearchActivity extends Activity {
         public long getItemId(int i) {
             return i;
         }
+    }
+
+    private void loadImageIntoView(String url, View view) {
+        ImageView imageView = (ImageView)view.findViewById(R.id.image_view);
+        final ProgressBar progressBar = (ProgressBar)view.findViewById(R.id.result_loading);
+        progressBar.setVisibility(View.VISIBLE);
+
+        Ion.with(SearchActivity.this)
+                .load(url)
+                .withBitmap()
+                .intoImageView(imageView)
+                .setCallback(new FutureCallback<ImageView>() {
+                    @Override
+                    public void onCompleted(Exception e, ImageView result) {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
     }
 }
