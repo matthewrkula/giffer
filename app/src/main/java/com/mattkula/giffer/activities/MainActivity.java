@@ -1,26 +1,20 @@
 package com.mattkula.giffer.activities;
 
 import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.ToggleButton;
 
 import com.mattkula.giffer.R;
 import com.mattkula.giffer.Utils;
 
-
 public class MainActivity extends Activity {
 
     private ToggleButton btnStatus;
+    private ImageView imgLogo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +32,8 @@ public class MainActivity extends Activity {
                 }
             }
         });
+        imgLogo = (ImageView)findViewById(R.id.img_giphy_logo);
+        Utils.showGiphyLogo(this, imgLogo, true);
     }
 
     @Override

@@ -30,6 +30,13 @@
 
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/img_giphy_logo"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:layout_gravity="center_horizontal"
+        />
+
     <GridView
         android:id="@+id/grid_search"
         android:layout_width="match_parent"

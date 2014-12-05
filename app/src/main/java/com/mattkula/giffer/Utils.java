@@ -6,7 +6,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.widget.ImageView;
 
+import com.koushikdutta.ion.Ion;
 import com.mattkula.giffer.activities.SearchActivity;
 
 /**
@@ -44,5 +46,13 @@ public class Utils {
     public static void hideNotification(Context context) {
         NotificationManager manager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(NOTIFICATION_ID);
+    }
+
+    public static void showGiphyLogo(Context context, ImageView imageView, boolean lightBackground) {
+        Ion.with(context)
+                .load("file://android_asset/" + (lightBackground ? "giphy_logo_white.gif" : "giphy_logo.gif"))
+                .withBitmap()
+                .error(context.getResources().getDrawable(android.R.color.holo_red_dark))
+                .intoImageView(imageView);
     }
 }

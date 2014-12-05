@@ -3,4 +3,11 @@
     <style name="AppTheme" parent="android:Theme.Material.Light">
     </style>
 
+    <style name="FloatingActivityTheme" parent="android:Theme.Material.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowCloseOnTouchOutside">false</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+    </style>
 </resources>

@@ -9,6 +9,7 @@ public class ImageResult {
 
     public String stillURL;
     public String gifURL;
+    public String fullGifURL;
 
     public static ImageResult getFromJsonObject(JsonObject object) {
         ImageResult result = new ImageResult();
@@ -17,6 +18,9 @@ public class ImageResult {
                 .get("url").getAsString();
         result.stillURL = object.getAsJsonObject("images")
                 .getAsJsonObject("fixed_height_still")
+                .get("url").getAsString();
+        result.fullGifURL = object.getAsJsonObject("images")
+                .getAsJsonObject("original")
                 .get("url").getAsString();
         return result;
     }

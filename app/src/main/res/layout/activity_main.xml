@@ -24,5 +24,12 @@
         android:textSize="20sp"
         />
 
+    <ImageView
+        android:id="@+id/img_giphy_logo"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        />
 
 </RelativeLayout>
