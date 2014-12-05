@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
@@ -43,10 +44,15 @@ public class SearchActivity extends Activity {
 
     private ClipboardManager clipboardManager;
 
+    private String searchTerm;
+    private boolean isSearching = false;
+    private int totalSearchCount = -1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+        searchTerm = "silly+dogs";
         clipboardManager = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
 
         searchBox = (EditText)findViewById(R.id.edit_search);
@@ -54,7 +60,8 @@ public class SearchActivity extends Activity {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
                 if (actionId == EditorInfo.IME_NULL && keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
-                    search(searchBox.getText().toString().trim());
+                    searchTerm = searchBox.getText().toString();
+                    search(true);
                     InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
                     return true;
@@ -84,26 +91,52 @@ public class SearchActivity extends Activity {
         giphyLogo = (ImageView)findViewById(R.id.img_giphy_logo);
         Utils.showGiphyLogo(this, giphyLogo, false);
 
-        search("funny+dog");
+        search(true);
+
+        searchGrid.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int i) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int i, int i2, int i3) {
+                if (!isSearching
+                        &&absListView.getLastVisiblePosition() == searchResults.size() - 1
+                        && searchResults.size() < totalSearchCount) {
+                    search(false);
+                }
+            }
+        });
     }
 
-    private void search(String term) {
-        term = TextUtils.join("+", term.split("\\s+"));
-        String requestURL = String.format("http://api.giphy.com/v1/gifs/search?api_key=%s&q=%s", ApiKeys.GIPHY_API_KEY, term);
+    private void search(final boolean clearResults) {
+        isSearching = true;
+        if (clearResults) {
+            searchResults.clear();
+            totalSearchCount = -1;
+        }
+        searchTerm = TextUtils.join("+", searchTerm.trim().split("\\s+"));
+        String requestURL = String.format("http://api.giphy.com/v1/gifs/search?api_key=%s&q=%s&offset=%d",
+                ApiKeys.GIPHY_API_KEY,
+                searchTerm,
+                searchResults.size());
         Ion.with(this)
                 .load(requestURL)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
-                        searchResults.clear();
                         JsonArray array = result.getAsJsonArray("data");
                         for (JsonElement object : array) {
                             JsonObject image = object.getAsJsonObject();
                             ImageResult imageResult = ImageResult.getFromJsonObject(image);
                             searchResults.add(imageResult);
                         }
+                        totalSearchCount = result.getAsJsonObject("pagination").get("total_count").getAsInt();
                         ((BaseAdapter) searchGrid.getAdapter()).notifyDataSetChanged();
+                        // Commented out because of the out of memory error, don't keep searching while scrolling
+//                        isSearching = false;
                     }
                 });
 
