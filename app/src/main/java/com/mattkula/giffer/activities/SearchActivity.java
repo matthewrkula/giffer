@@ -38,7 +38,6 @@ public class SearchActivity extends Activity {
 
     private EditText searchBox;
     private GridView searchGrid;
-    private ImageView giphyLogo;
 
     private ArrayList<ImageResult> searchResults = new ArrayList<ImageResult>();
 
@@ -88,7 +87,7 @@ public class SearchActivity extends Activity {
             }
         });
 
-        giphyLogo = (ImageView)findViewById(R.id.img_giphy_logo);
+        ImageView giphyLogo = (ImageView)findViewById(R.id.img_giphy_logo);
         Utils.showGiphyLogo(this, giphyLogo, false);
 
         search(true);
@@ -102,7 +101,7 @@ public class SearchActivity extends Activity {
             @Override
             public void onScroll(AbsListView absListView, int i, int i2, int i3) {
                 if (!isSearching
-                        &&absListView.getLastVisiblePosition() == searchResults.size() - 1
+                        && absListView.getLastVisiblePosition() == searchResults.size() - 1
                         && searchResults.size() < totalSearchCount) {
                     search(false);
                 }
